@@ -1,0 +1,524 @@
+	// create the module and name it scotchApp
+	var scotchApp = angular.module('scotchApp', ['ngRoute','ngCkeditor']);
+
+	// configure our routes
+	scotchApp.config(function($routeProvider) {
+		$routeProvider
+
+			// route for the home page
+			.when('/home', {
+				templateUrl : 'pages/adminhome.html',
+				controller  : 'homeController'
+			})
+
+			// route for the home page
+			.when('/', {
+				templateUrl : 'pages/home.html',
+				controller  : 'mainController'
+			})
+
+			// route for the about page
+			.when('/about', {
+				templateUrl : 'pages/about.html',
+				controller  : 'aboutController'
+			})
+
+			// route for the contact page
+			.when('/contact', {
+				templateUrl : 'pages/contact.html',
+				controller  : 'contactController'
+			})
+
+			// route for the contact page
+			.when('/pages', {
+				templateUrl : 'pages/pages.html',
+				controller  : 'pagesController'
+			})
+			
+			// route for selected page
+			.when('/pages/:pageId',{
+				templateUrl : 'pages/editpage.html',
+				controller  : 'editpageController'
+			})
+
+			//route for page_id
+			.when('/page_id/:pageId/:status',{
+				templateUrl : 'pages/page_id.html',
+				controller  : 'pageidController'
+			})
+			
+			.when('/:pageId', {
+				templateUrl : 'pages/home.html',
+				controller  : 'mainController'
+			})
+
+			.when('/comments/:commentId', {
+				templateUrl : 'pages/comments.html',
+				controller  : 'commentController'
+			});
+			
+			
+	});
+
+	
+	scotchApp.controller('homeController', function($scope,$http) {		
+		$scope.message = 'Look! I am home page.';
+	});
+
+	// create the controller and inject Angular's $scope
+	scotchApp.controller('mainController', function($scope,$http,$routeParams) {
+		operations({'ID':1},"admin/session_check",$http,$scope);
+		// create a message to display in our view
+		$scope.message = 'Everyone come and see how good I look!';
+		if($routeParams.pageId)
+		{			
+			page_data = {'ID' : $routeParams.pageId,'post_status' : 'draft'};	
+			operations(page_data,"admin/fetch_page_one",$http,$scope);
+		}
+		else
+		{
+			$scope.post_content ="<p>Hello</p>";
+			$scope.isDisabled=true;
+		}
+		
+		$scope.logout = function(){
+			
+			operations({'ID':1},"admin/logout",$http,$scope);
+		}
+	});
+
+	scotchApp.controller('aboutController', function($scope) {
+		$scope.message = 'Look! I am an about page.';
+	});
+
+	scotchApp.controller('contactController', function($scope) {
+		$scope.message = 'Contact us! JK. This is just a demo.';
+	});
+
+	scotchApp.controller('pagesController', function($scope) {
+		$scope.message = 'Here all the pages will display.';
+		
+	});
+	
+	scotchApp.controller('commentController', function($scope) {
+		
+		$scope.message = 'Here all the pages will display.';
+		
+	});
+	
+	scotchApp.controller('editpageController', function($scope,$routeParams,$http) {
+	
+		$http({
+		url: "admin/fetch_page_one",        
+		method: 'POST',
+		data:{'ID' : $routeParams.pageId , 'post_status' : 'publish'}
+	      }).success(function(data){		
+			
+			if(data.page.post_title){
+				
+				$scope.post_title = data.page.post_title;
+				//$scope.shortdesc = data.short_desc;
+				$scope.post_content = data.page.post_content;
+				$scope.paramlink = data.page.ID;
+				$scope.isDisabled=false;
+			}else{
+				$scope.pagenotfound = "We did not find this page info";
+			}
+			
+		});
+		$scope.message = 'Edit page.';
+	});
+	scotchApp.controller('pageidController', function($http,$scope,$routeParams) {
+		$scope.message = 'Here all the pages will display.';	
+		if($routeParams.status == 'preview')
+		{
+			page_data = {'ID' : $routeParams.pageId,'post_status' : 'draft'};
+		}
+		else
+		{
+			page_data = {'ID' : $routeParams.status,'post_status' : 'inherit'};
+		}
+		
+		operations(page_data,"admin/fetch_page_one",$http,$scope);	
+		
+	});
+	scotchApp.controller("commentController",function($scope, $http,$routeParams){
+		$scope.commentForm=function(){
+			var now = new Date;
+			var cur_time = now.customFormat( "#YYYY#-#MM#-#DD# #hh#:#mm#:#ss#" );		
+			var page_cmnt = {"ID" : $routeParams.pageId,"comment" : $scope.comment}; 
+			operations(page_cmnt,"admin/updatepage_cmt",$http,$scope);			
+		}
+		
+	});
+	scotchApp.controller('CmntCtrl', function ($scope, $http,ckeditorService,$routeParams) {
+		ckeditorService.fun($scope);		
+		
+		operations({"comment_ID" : $routeParams.commentId},"admin/cmnt_info",$http,$scope);
+	});
+	
+	
+	
+	scotchApp.factory('ckeditorService', function() {
+	  return {      
+		fun : function($scope){
+			
+		      	$scope.editorOptions = {
+				language: 'en'
+			       // uiColor: '#000000'
+			    };
+			$scope.$on("ckeditor.ready", function( event ) {
+		        $scope.isReady = true;
+		    });
+			/*$scope.$on("ckeditor.blur",function(event)
+			{
+				alert('asd');
+			});*/
+			
+			
+		}
+	  };
+	});
+	
+
+scotchApp.controller('FormCtrl', function ($scope, $http,ckeditorService,$routeParams) {
+	//CKEditor effects	
+	ckeditorService.fun($scope);
+ 	/*$scope.save = function() {
+                $http.post('/examples/test.php', {
+                    content: $scope.post_content
+                }).success(function() {
+                    alert('Saved');
+                });
+            }*/
+            $scope.save = function() {
+                console.info($scope.post_content, 'save');
+            }
+
+	//Form Submition for add page
+	$scope.addPage = function() {	
+		var now = new Date;
+		var cur_time = now.customFormat( "#YYYY#-#MM#-#DD# #hh#:#mm#:#ss#" );
+	     	var formData = { 	'ID' : $scope.paramlink,
+					'post_content' : $scope.post_content,
+					'post_title' : $scope.post_title,
+					'post_status' : 'publish', 
+					'post_date' : cur_time,
+					'post_date_gmt' : cur_time,
+					'post_modified' : cur_time,
+					'post_modified_gmt' : cur_time,
+					'post_type' : 'page',					
+					 };
+		operations(formData,"admin/addPage",$http,$scope);     
+	};
+
+
+
+	//Form Submition for edit page
+	$scope.editPage = function(){
+		var now = new Date;
+		var cur_time = now.customFormat( "#YYYY#-#MM#-#DD# #hh#:#mm#:#ss#" );
+	    var formData = { 	'ID' : $scope.paramlink,
+					'post_content' : $scope.post_content,
+					'post_title' : $scope.post_title,
+					'post_status' : 'publish', 
+					'post_date' : cur_time,
+					'post_date_gmt' : cur_time,
+					'post_modified' : cur_time,
+					'post_modified_gmt' : cur_time,
+					'post_type' : 'page',					
+					 };
+		operations(formData,"admin/editPage",$http,$scope);           
+	
+	}
+
+	//blur
+	$scope.saveDraft=function(){
+		
+		//if($scope.paramlink == null){
+			var now = new Date;
+			var cur_time = now.customFormat( "#YYYY#-#MM#-#DD# #hh#:#mm#:#ss#" );
+			var blur_data = {
+					'post_content' : $scope.post_content,
+					'post_title' : $scope.post_title,
+					'post_status' : 'draft', 
+					'post_date' : cur_time,
+					'post_modified' : cur_time,
+					'post_modified_gmt' : cur_time,
+					'post_type' : 'page',					
+					 }
+			if($scope.paramlink != null)
+			{
+				blur_data.ID = $scope.paramlink;
+			}
+			
+			operations(blur_data,"admin/saveDraft",$http,$scope);			
+	     // }
+	};
+
+	$scope.preview=function(id){
+			
+		var now = new Date;
+		var cur_time = now.customFormat( "#YYYY#-#MM#-#DD# #hh#:#mm#:#ss#" );
+		var org_id_data = {'post_content' : $scope.post_content,
+					'post_title' : $scope.post_title,				
+					'post_date' : cur_time,
+					'post_date_gmt' : cur_time,
+					'post_modified' : cur_time,
+					'post_modified_gmt' : cur_time,
+					'post_type' : 'page',
+					'ID' : id			
+					 };			
+		operations(org_id_data,"admin/add_draft_preview",$http,$scope);			
+		window.open("#page_id/"+ id +"/preview");					
+	};
+
+	$scope.preview_changes=function(id){
+			
+		var now = new Date;
+		var cur_time = now.customFormat( "#YYYY#-#MM#-#DD# #hh#:#mm#:#ss#" );
+		var auto_save_data = {'post_content' : $scope.post_content,
+					'post_title' : $scope.post_title,				
+					'post_date' : cur_time,
+					'post_date_gmt' : cur_time,
+					'post_modified' : cur_time,
+					'post_modified_gmt' : cur_time,
+					'post_type' : 'page',
+					'post_status' : 'inherit',
+					'post_name' : id + "-autosave-v1",
+					'post_parent' : id					
+					 };	
+			
+		operations(auto_save_data,"admin/auto_save_preview",$http,$scope);			
+					
+	};
+
+	
+});
+
+
+
+//Pages display
+scotchApp.controller('pagetableController',function($scope,$http){
+	
+	//on load	
+	operations({'pages_cat':'all'},"admin/getpagedetails",$http,$scope);	
+	$scope.all= 'selectedone';
+	//click events
+	$scope.all_pages = function(){
+		operations({'pages_cat' : 'all'},"admin/getpagedetails",$http,$scope);
+		$scope.all= 'selectedone';$scope.trash= '';$scope.draft= '';$scope.publish= '';
+	};
+	$scope.publish_pages = function(){
+		operations({'pages_cat' : 'publish'},"admin/getpagedetails",$http,$scope);
+		$scope.publish= 'selectedone';$scope.trash= '';$scope.draft= '';$scope.all= '';
+	};
+	$scope.draft_pages = function(){
+		operations({'pages_cat' : 'draft'},"admin/getpagedetails",$http,$scope);
+		$scope.draft= 'selectedone';$scope.trash= '';$scope.publish= '';$scope.all= '';
+	};
+	$scope.trash_pages = function(){
+		operations({'pages_cat' : 'trash'},"admin/getpagedetails",$http,$scope);
+		$scope.trash= 'selectedone';$scope.draft= '';$scope.publish= '';$scope.all= '';
+	};
+
+	//Trash page
+	$scope.trashpage = function(pid){
+		var trash_data = {'ID':pid,'post_status':'trash'};
+		operations(trash_data,"admin/trashpage",$http,$scope);		
+	}
+
+	//Delete page
+	$scope.deletepage = function(pid){
+		
+		var delete_data = {'ID':pid};
+		operations(delete_data,"admin/deletepage",$http,$scope);
+				
+	}
+
+	//Restore Page
+	$scope.restorepage = function(pid){
+		operations({'ID':pid},"admin/restorepage",$http,$scope);
+	}
+	
+	
+});
+
+scotchApp.directive('compile', function($compile) {
+// directive factory creates a link function
+return function(scope, element, attrs) {
+    scope.$watch(
+        function(scope) {
+             // watch the 'compile' expression for changes
+            return scope.$eval(attrs.compile);
+        },
+        function(value) {
+            // when the 'compile' expression changes
+            // assign it into the current DOM
+            element.html(value);
+
+            // compile the new DOM and link it to the current
+            // scope.
+            // NOTE: we only compile .childNodes so that
+            // we don't get into infinite loop compiling ourselves
+            $compile(element.contents())(scope);
+        }
+    );
+};
+});
+
+scotchApp.directive('confirmationNeeded', function () {
+  return {
+    priority: 1,
+    terminal: true,
+    link: function (scope, element, attr) {
+      var msg = attr.confirmationNeeded || "Are you sure?";
+      var clickAction = attr.ngClick;
+      element.bind('click',function () {
+        if ( window.confirm(msg) ) {
+          scope.$eval(clickAction)
+        }
+      });
+    }
+  };
+});
+
+
+
+function operations(data,url,$http,$scope)
+{
+	$http({
+		url: url,
+		data: data,
+		method: 'POST'
+	      }).success(function(res){
+			if(url == "admin/saveDraft")
+			{	
+				$scope.paramlink = parseInt(res);				
+				$scope.isDisabled = false;
+			}
+			else if(url == "admin/add_draft_preview")
+			{
+				var pviw_data = {'post_content' : data.post_content,
+					'post_title' : data.post_title,				
+					'post_date' : data.post_date,
+					'post_date_gmt' : data.post_date,
+					'post_modified' : data.post_date,
+					'post_modified_gmt' : data.post_date,
+					'post_type' : 'page',
+					'post_status' : 'inherit',
+					'post_name' : data.ID + "-revision-v1",
+					'post_parent' : data.ID		
+					 }	
+					$http({
+					url: "admin/add_inherit_preview",
+					data: pviw_data,
+					method: 'POST'
+				      }).success(function(res){
+						console.log(res)
+					});
+			}
+			else if(url == "admin/addPage")
+			{
+				if(res)
+				{
+					window.location = "#pages";
+				}
+			}
+			else if(url == "admin/fetch_page_one")
+			{
+				
+				$scope.pageinfo = res.page;
+				$scope.paramlink = parseInt(res.page.ID);
+				$scope.post_title = res.page.post_title;
+				$scope.post_content = res.page.post_content;
+				$scope.isDisabled=false;
+				$scope.comments = res.cmnts;
+				console.log(res)
+				//$scope.des = Encoder.htmlEncode(res.post_content);
+			}
+			else if(url == "admin/auto_save_preview")
+			{				
+				window.open("#page_id/"+ data.post_parent + '/' + res);
+			}
+			else if(url == "admin/editPage")
+			{				
+			}
+			else if(url == "admin/getpagedetails")
+			{
+				$scope.pagedetails = res['num_rows'];
+				$scope.counts = res['counts'];
+				
+				if(data.pages_cat == 'trash')
+				{
+					$scope.trash_page=1;
+					$scope.exe_page=0;
+				}
+				else 
+				{
+					$scope.exe_page=1;
+					$scope.trash_page=0;
+				}
+				
+			}
+			else if(url == "admin/trashpage")
+			{
+				window.location = '#pages';
+			}
+			else if(url == "admin/deletepage")
+			{
+				window.location = '#pages';
+			}
+			else if(url == "admin/restorepage")
+			{
+				window.location = '#pages';
+			}
+			else if(url == "admin/updatepage_cmt")
+			{
+				$scope.comments = res.cmnts;
+			}
+			else if(url == "admin/cmnt_info")
+			{
+				$scope.cmntnfo = res;
+			}
+			else if(url == "admin/session_check")
+			{
+				if(res == 0)
+				{
+					 window.location.href = '/index';
+				}
+			}
+			else if(url == "admin/logout")
+			{
+				if(res == 0)
+				{
+					window.location.href = '/index';
+				}
+			}
+			
+		});
+	return 1;
+}
+
+
+
+Date.prototype.customFormat = function(formatString){
+    var YYYY,YY,MMMM,MMM,MM,M,DDDD,DDD,DD,D,hhh,hh,h,mm,m,ss,s,ampm,AMPM,dMod,th;
+    var dateObject = this;
+    YY = ((YYYY=dateObject.getFullYear())+"").slice(-2);
+    MM = (M=dateObject.getMonth()+1)<10?('0'+M):M;
+    MMM = (MMMM=["January","February","March","April","May","June","July","August","September","October","November","December"][M-1]).substring(0,3);
+    DD = (D=dateObject.getDate())<10?('0'+D):D;
+    DDD = (DDDD=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][dateObject.getDay()]).substring(0,3);
+    th=(D>=10&&D<=20)?'th':((dMod=D%10)==1)?'st':(dMod==2)?'nd':(dMod==3)?'rd':'th';
+    formatString = formatString.replace("#YYYY#",YYYY).replace("#YY#",YY).replace("#MMMM#",MMMM).replace("#MMM#",MMM).replace("#MM#",MM).replace("#M#",M).replace("#DDDD#",DDDD).replace("#DDD#",DDD).replace("#DD#",DD).replace("#D#",D).replace("#th#",th);
+
+    h=(hhh=dateObject.getHours());
+    if (h==0) h=24;
+    if (h>12) h-=12;
+    hh = h<10?('0'+h):h;
+    AMPM=(ampm=hhh<12?'am':'pm').toUpperCase();
+    mm=(m=dateObject.getMinutes())<10?('0'+m):m;
+    ss=(s=dateObject.getSeconds())<10?('0'+s):s;
+    return formatString.replace("#hhh#",hhh).replace("#hh#",hh).replace("#h#",h).replace("#mm#",mm).replace("#m#",m).replace("#ss#",ss).replace("#s#",s).replace("#ampm#",ampm).replace("#AMPM#",AMPM);
+}

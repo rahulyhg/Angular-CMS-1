@@ -1,0 +1,65 @@
+<?php
+class Aj_pages_model extends CI_Model 
+{
+	function insert_page($data)
+	{
+		$query = "SELECT * FROM aj_pages WHERE title='".$data->title."'";
+		$res_raw = $this->db->query($query);
+		if($res_raw->num_rows)
+		{
+			return $res_raw->row_array();
+		}
+		else
+		{
+			$ins_query = $this->db->insert('aj_pages',$data);
+			return 1;
+		}
+		
+	}
+
+	function update_page($data)
+	{
+		$query = "SELECT * FROM aj_pages WHERE title='".$data->title."' AND page_id !=".$data->page_id."";
+		$res_raw = $this->db->query($query);
+		if($res_raw->num_rows)
+		{
+			return 2;
+		}
+		else
+		{
+			$this->db->where('page_id', $data->page_id);
+			$this->db->update('aj_pages', $data); 			
+			return 1;
+		}
+		
+	}
+
+	function fetch_allpages()
+	{
+		$query = "SELECT * FROM aj_pages";
+		$res_raw = $this->db->query($query);
+		if($res_raw->num_rows)
+		{
+			return $res_raw->result_array();
+		}
+		return false;
+	}
+	
+	function fetch_onepage($pid)
+	{
+		$query = "SELECT * FROM aj_pages WHERE page_id=".$pid."";
+		$res_raw = $this->db->query($query);
+		if($res_raw->num_rows)
+		{
+			return $res_raw->row_array();
+		}
+		return false;
+	}
+
+	function delete_page($pid)
+	{
+		return $this->db->delete('aj_pages', array('page_id' => $pid));
+	}
+	
+}
+?>

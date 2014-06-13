@@ -1,0 +1,57 @@
+<style>
+
+
+a{
+	text-decoration:none !important;
+	cursor:pointer !important;}
+</style>
+<div class=" ">
+	<!--<h1>Home Page</h1>
+	
+	<p>{{ message }}</p>-->
+
+
+	<div class="container">
+
+            <div class="panel panel-default" style="margin:0px 0px 0px 15%;width:830px;float:left;" >
+
+               <div class="panel-heading">
+                  <h2 class="panel-title">Preview Page</h2>
+               </div>
+
+		<article ng-if=pageinfo>
+		   <header>
+			<h3  >{{post_title}}</h3>		      
+			<p style="padding: 10px 0px 2px 1px;" compile=post_content></p>
+		   </header><!-- .entry-header -->		   
+		   <a onclick="window.close();"><i class="fa fa-pencil"></i> Edit</a>		   
+		</article><!-- #post-## -->
+
+		<div id="respond" class="comment-respond" ng-controller="commentController">
+			<h4 style="padding: 10px 0px 2px 1px;" >THOUGHTS ON "{{post_title}}"</h4>
+			<div ng-repeat="comment in comments" ng-if=comment.comment_approved>				
+				<pre><span><i class="fa fa-star" ng-if=comment.user_id ></i> {{comment.comment_author}}<br>{{comment.comment_date}} <a href="#comments/{{comment.comment_ID}}"><i class="fa fa-pencil"></i> Edit</a></br></br>{{comment.comment_content}}</span></pre>		
+				
+			</div>
+			<h3 id="reply-title" class="comment-reply-title">
+				Leave a Reply
+			</h3>
+			<form method="post" name="form"  ng-submit="commentForm()" novalidate >
+		     	     <p class="comment-form-comment">
+				<label for="comment">Comment : </label>
+				    <textarea name="comment"   ng-model="comment" cols="45" rows="8" required ></textarea>
+					<span ng-show="form.comment.$dirty &amp;&amp; form.comment.$error.required" class="help-block">Please enter comment</span>					
+			     </p>
+			     <p class="form-allowed-tags">
+				You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href="" title=""&gt; &lt;abbr title=""&gt; &lt;acronym title=""&gt; &lt;b&gt; &lt;blockquote cite=""&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=""&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=""&gt; &lt;strike&gt; &lt;strong&gt; </code>
+			     </p>
+			     <p class="form-submit">
+				<input  ng-disabled="form.$invalid" value="Post Comment" type="submit">
+				   <!-- <input name="comment_post_ID" value="111" id="comment_post_ID" type="hidden">
+				    <input name="comment_parent" id="comment_parent" value="0" type="hidden">-->
+			     </p>
+			</form>		   
+		</div>
+            </div>
+         </div>
+</div>

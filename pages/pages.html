@@ -1,0 +1,67 @@
+<style>
+.page_counts{
+
+    font-weight: bold;
+    text-decoration: none;
+    color: skyblue;
+    cursor: pointer;
+    margin-left:10px;  
+}
+.page_counts:hover{
+	color:rgb(8, 175, 243);
+}
+
+.selectedone{
+	color:rgb(90, 91, 198);
+}
+a{
+	text-decoration:none !important;
+	cursor:pointer !important;}
+</style>
+<div class=" ">
+	<!--<h1>All Pages</h1>
+	
+	<p>{{ message }}</p>-->
+
+
+	<div class="container">
+            <div class="panel panel-default" style="margin:0 auto;width:700px" ng-controller="pagetableController">
+               <div class="panel-heading">
+                  <h2 class="panel-title" >Page Details</h2>
+               </div>
+		<div>
+		   <span class="page_counts" ng-class="all" ng-click="all_pages()">All({{counts.all}})</span>
+		   <span class="page_counts" ng-class="publish" ng-click="publish_pages()">Published({{counts.publish}})</span>
+		   <span class="page_counts" ng-class="draft" ng-click="draft_pages()">Drafts({{counts.draft}})</span>
+		   <span class="page_counts" ng-class="trash" ng-click="trash_pages()">Trash({{counts.trash}})</span>
+		</div>
+		<div>{{alert}}</div>
+               <div class="panel-body">
+			<table class="table table-striped" >
+				<thead>
+					<tr>
+						<th>PageID</th>
+						<th>Title</th>
+						<th>Date</th>
+						<th>Action</th>			
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="pagedetail in pagedetails">
+						<td>{{pagedetail.ID}}</td>
+						<td>{{pagedetail.post_title}}</td>
+						<td>{{pagedetail.post_date}}</td>
+						<td ng-if=exe_page>
+							<a ng-if="pagedetail.post_status == 'draft'" href="#/{{pagedetail.ID}}">Edit</a>
+							<a ng-if="pagedetail.post_status == 'publish'" href="#/pages/{{pagedetail.ID}}">Edit</a>/
+							<a ng-click=trashpage(pagedetail.ID) confirmation-needed="Are you sure,You really want to trash this page?">Trash</a>
+						</td>
+						<td ng-if=trash_page><a ng-click="restorepage(pagedetail.ID)">Restore</a>/
+						<a ng-click=deletepage(pagedetail.ID) confirmation-needed="Are you sure,You really want to delete this page perminently?">Delete</a></td>
+					</tr>
+				</tbody>
+			</table>                 
+               </div>
+            </div>
+         </div>
+</div>

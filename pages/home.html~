@@ -1,0 +1,74 @@
+<div class=" ">
+	<!--<h1>Home Page</h1>
+	
+	<p>{{ message }}</p>-->
+
+
+	<div class="container">
+            <div class="panel panel-default" style="margin:0px 0px 0px 15%;width:830px;float:left;" ng-controller="FormCtrl">
+               <div class="panel-heading">
+                  <h2 class="panel-title">Add Page</h2>
+               </div>
+               <div class="panel-body" style="width: 72%;float: left;" >
+
+                  <form method="post" name="form" ng-submit="addPage()"  novalidate class="form-horizontal">
+                     <div class="form-group">
+                        <label class="col-lg-2 control-label">                
+                        </label>
+                        <div class="col-lg-10">
+                           <span style='color:#b94a48'>{{error}}</span>
+                           <span style='color:#b94a48'>{{success}}</span>
+                        </div>
+                     </div>            
+                     <div class="form-group">
+                        <label for="post_title" class="col-lg-2 control-label">
+                           Title
+                        </label>
+                        <div class="col-lg-10">
+                           <input type="text" class="form-control" id="post_title" name="post_title" ng-minlength="3" ng-maxlength="50" ng-model="post_title" placeholder="Title" required autofocus ng-blur="saveDraft()">
+			<span ng-model="paramlink" style="color:grey;font-size:10px;" ng-if="paramlink">
+				Paramlink : #page={{paramlink}}
+			</span>
+                           <!--<span ng-show="form.post_title.$dirty &amp;&amp; form.post_title.$error.required" class="help-block">
+                           Please enter title
+                           </span>
+                           <span ng-show="form.post_title.$dirty &amp;&amp; form.post_title.$error.maxlength" class="help-block">Title sholuld not exceed 50 characters</span>
+                           <span ng-show="form.post_title.$dirty &amp;&amp; form.post_title.$error.minlength" class="help-block"> Title should contain atleast 3 characters</span>-->
+                        </div>
+                     </div>
+                    <!-- <div class="form-group">
+                        <label for="shortdesc" class="col-lg-2 control-label">Short Desc</label>
+                        <div class="col-lg-10">
+                           <input type="text" class="form-control" id="shortdesc" name="shortdesc" ng-model="shortdesc" placeholder="Short Desc" required ng-minlength=3 ng-maxlength=150>
+                           <span ng-show="form.shortdesc.$dirty &amp;&amp; form.shortdesc.$error.required" class="help-block">
+                           Please enter short description
+                           </span>
+                           <span ng-show="form.shortdesc.$dirty &amp;&amp; form.shortdesc.$error.maxlength" class="help-block">Short description sholuld not exceed 150 characters</span>
+                           <span ng-show="form.shortdesc.$dirty &amp;&amp; form.shortdesc.$error.minlength" class="help-block"> Short description should contain atleast 3 characters</span>
+                        </div>
+                     </div>    -->                 
+                     <div class="form-group">
+                        <label for="post_content" class="col-lg-2 control-label">Long Desc</label>
+                        <div class="col-lg-10" >                           
+                           <div ng-cloak ng-hide="isReady" class="highlight">    Initialising ...
+                           </div>
+                           <div ng-cloak ng-show="isReady">
+                              <!--<textarea ckeditor="editorOptions" name="editor" ng-model="post_content" ng-change="save()" class="form-control" placeholder="Long Desc"></textarea>-->
+				<textarea ckeditor="editorOptions" name="editor" ng-model="post_content" class="form-control" placeholder="Long Desc" ng-blur="saveDraft()"></textarea>
+                           </div>
+                           <!--{{post_content}}-->
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <div class="col-lg-offset-2 col-lg-10">
+                           <input type="submit" value="Publish" ng-disabled="isDisabled" class="btn btn-primary">
+                        </div>
+                     </div>
+                  </form>			
+               </div>		
+		<div class="right_bar" >
+			<a class="btn" ng-disabled="isDisabled" ng-click=preview(paramlink)>Preview</a>
+		</div>
+            </div>
+         </div>
+</div>
